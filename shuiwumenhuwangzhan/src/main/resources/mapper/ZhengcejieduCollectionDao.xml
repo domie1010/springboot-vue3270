@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhengcejieduCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhengcejiedu_id as zhengcejieduId
+        ,a.yonghu_id as yonghuId
+        ,a.zhengcejiedu_collection_types as zhengcejieduCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhengcejieduCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,zhengcejiedu.zhengcejiedu_name as zhengcejieduName
+        ,zhengcejiedu.zhengcejiedu_photo as zhengcejieduPhoto
+        ,zhengcejiedu.zhengcejiedu_content as zhengcejieduContent
+
+        FROM zhengcejiedu_collection  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        left JOIN zhengcejiedu zhengcejiedu ON a.zhengcejiedu_id = zhengcejiedu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zhengcejieduId != null and params.zhengcejieduId != ''">
+                and (
+                    a.zhengcejiedu_id = #{params.zhengcejieduId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.zhengcejieduCollectionTypes != null and params.zhengcejieduCollectionTypes != ''">
+                and a.zhengcejiedu_collection_types = #{params.zhengcejieduCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+                <!-- 判断政策解读的id不为空 -->
+            <if test=" params.zhengcejieduIdNotNull != '' and params.zhengcejieduIdNotNull != null and params.zhengcejieduIdNotNull != 'null' ">
+                and a.zhengcejiedu_id IS NOT NULL
+            </if>
+            <if test="params.zhegncewenjianId != null  and params.zhegncewenjianId != ''">
+                and zhengcejiedu.zhegncewenjian_id = #{params.zhegncewenjianId}
+            </if>
+            <if test=" params.zhengcejieduName != '' and params.zhengcejieduName != null and params.zhengcejieduName != 'null' ">
+                and zhengcejiedu.zhengcejiedu_name like CONCAT('%',#{params.zhengcejieduName},'%')
+            </if>
+            <if test=" params.zhengcejieduContent != '' and params.zhengcejieduContent != null and params.zhengcejieduContent != 'null' ">
+                and zhengcejiedu.zhengcejiedu_content like CONCAT('%',#{params.zhengcejieduContent},'%')
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

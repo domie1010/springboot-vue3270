@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DanweixinxiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.danweixinxi_name as danweixinxiName
+        ,a.danweixinxi_types as danweixinxiTypes
+        ,a.danweixinxi_photo as danweixinxiPhoto
+        ,a.danweixinxi_address as danweixinxiAddress
+        ,a.danweixinxi_number as danweixinxiNumber
+        ,a.danweixinxi_content as danweixinxiContent
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.DanweixinxiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+
+        FROM danweixinxi  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.danweixinxiName != '' and params.danweixinxiName != null and params.danweixinxiName != 'null' ">
+                and a.danweixinxi_name like CONCAT('%',#{params.danweixinxiName},'%')
+            </if>
+            <if test="params.danweixinxiTypes != null and params.danweixinxiTypes != ''">
+                and a.danweixinxi_types = #{params.danweixinxiTypes}
+            </if>
+            <if test=" params.danweixinxiAddress != '' and params.danweixinxiAddress != null and params.danweixinxiAddress != 'null' ">
+                and a.danweixinxi_address like CONCAT('%',#{params.danweixinxiAddress},'%')
+            </if>
+            <if test="params.danweixinxiNumberStart != null and params.danweixinxiNumberStart != ''">
+                <![CDATA[  and a.danweixinxi_number >= #{params.danweixinxiNumberStart}   ]]>
+            </if>
+            <if test="params.danweixinxiNumberEnd != null and params.danweixinxiNumberEnd != ''">
+                <![CDATA[  and a.danweixinxi_number <= #{params.danweixinxiNumberEnd}   ]]>
+            </if>
+             <if test="params.danweixinxiNumber != null and params.danweixinxiNumber != ''">
+                and a.danweixinxi_number = #{params.danweixinxiNumber}
+             </if>
+            <if test=" params.danweixinxiContent != '' and params.danweixinxiContent != null and params.danweixinxiContent != 'null' ">
+                and a.danweixinxi_content like CONCAT('%',#{params.danweixinxiContent},'%')
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>

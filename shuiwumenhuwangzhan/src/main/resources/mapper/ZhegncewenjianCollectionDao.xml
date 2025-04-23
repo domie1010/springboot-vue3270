@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhegncewenjianCollectionDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.zhegncewenjian_id as zhegncewenjianId
+        ,a.yonghu_id as yonghuId
+        ,a.zhegncewenjian_collection_types as zhegncewenjianCollectionTypes
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhegncewenjianCollectionView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.new_money as newMoney
+        ,zhegncewenjian.zhegncewenjian_name as zhegncewenjianName
+        ,zhegncewenjian.zhegncewenjian_uuid_number as zhegncewenjianUuidNumber
+        ,zhegncewenjian.zhegncewenjian_photo as zhegncewenjianPhoto
+        ,zhegncewenjian.zhegncewenjian_file as zhegncewenjianFile
+        ,zhegncewenjian.zhegncewenjian_types as zhegncewenjianTypes
+        ,zhegncewenjian.zhegncewenjian_clicknum as zhegncewenjianClicknum
+        ,zhegncewenjian.zhegncewenjian_content as zhegncewenjianContent
+        ,zhegncewenjian.shangxia_types as shangxiaTypes
+        ,zhegncewenjian.zhegncewenjian_delete as zhegncewenjianDelete
+        ,zhegncewenjian.fabu_time as fabuTime
+        ,zhegncewenjian.zhixing_time as zhixingTime
+
+        FROM zhegncewenjian_collection  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+        left JOIN zhegncewenjian zhegncewenjian ON a.zhegncewenjian_id = zhegncewenjian.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.zhegncewenjianId != null and params.zhegncewenjianId != ''">
+                and (
+                    a.zhegncewenjian_id = #{params.zhegncewenjianId}
+                )
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.zhegncewenjianCollectionTypes != null and params.zhegncewenjianCollectionTypes != ''">
+                and a.zhegncewenjian_collection_types = #{params.zhegncewenjianCollectionTypes}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+                <!-- 判断用户的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.newMoneyStart != null ">
+                <![CDATA[  and yonghu.new_money >= #{params.newMoneyStart}   ]]>
+            </if>
+            <if test="params.newMoneyEnd != null ">
+                <![CDATA[  and yonghu.new_money <= #{params.newMoneyEnd}   ]]>
+            </if>
+                <!-- 判断政策文件的id不为空 -->
+            <if test=" params.zhegncewenjianIdNotNull != '' and params.zhegncewenjianIdNotNull != null and params.zhegncewenjianIdNotNull != 'null' ">
+                and a.zhegncewenjian_id IS NOT NULL
+            </if>
+            <if test=" params.zhegncewenjianName != '' and params.zhegncewenjianName != null and params.zhegncewenjianName != 'null' ">
+                and zhegncewenjian.zhegncewenjian_name like CONCAT('%',#{params.zhegncewenjianName},'%')
+            </if>
+            <if test=" params.zhegncewenjianUuidNumber != '' and params.zhegncewenjianUuidNumber != null and params.zhegncewenjianUuidNumber != 'null' ">
+                and zhegncewenjian.zhegncewenjian_uuid_number like CONCAT('%',#{params.zhegncewenjianUuidNumber},'%')
+            </if>
+            <if test="params.zhegncewenjianTypes != null  and params.zhegncewenjianTypes != ''">
+                and zhegncewenjian.zhegncewenjian_types = #{params.zhegncewenjianTypes}
+            </if>
+
+            <if test="params.zhegncewenjianClicknumStart != null  and params.zhegncewenjianClicknumStart != '' ">
+                <![CDATA[  and zhegncewenjian.zhegncewenjian_clicknum >= #{params.zhegncewenjianClicknumStart}   ]]>
+            </if>
+            <if test="params.zhegncewenjianClicknumEnd != null  and params.zhegncewenjianClicknumEnd != '' ">
+                <![CDATA[  and zhegncewenjian.zhegncewenjian_clicknum <= #{params.zhegncewenjianClicknumEnd}   ]]>
+            </if>
+            <if test="params.zhegncewenjianClicknum != null  and params.zhegncewenjianClicknum != '' ">
+                and zhegncewenjian.zhegncewenjian_clicknum = #{params.zhegncewenjianClicknum}
+            </if>
+            <if test=" params.zhegncewenjianContent != '' and params.zhegncewenjianContent != null and params.zhegncewenjianContent != 'null' ">
+                and zhegncewenjian.zhegncewenjian_content like CONCAT('%',#{params.zhegncewenjianContent},'%')
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and zhegncewenjian.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test="params.zhegncewenjianDeleteStart != null  and params.zhegncewenjianDeleteStart != '' ">
+                <![CDATA[  and zhegncewenjian.zhegncewenjian_delete >= #{params.zhegncewenjianDeleteStart}   ]]>
+            </if>
+            <if test="params.zhegncewenjianDeleteEnd != null  and params.zhegncewenjianDeleteEnd != '' ">
+                <![CDATA[  and zhegncewenjian.zhegncewenjian_delete <= #{params.zhegncewenjianDeleteEnd}   ]]>
+            </if>
+            <if test="params.zhegncewenjianDelete != null  and params.zhegncewenjianDelete != '' ">
+                and zhegncewenjian.zhegncewenjian_delete = #{params.zhegncewenjianDelete}
+            </if>
+            <if test=" params.fabuTimeStart != '' and params.fabuTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhegncewenjian.fabu_time) >= UNIX_TIMESTAMP(#{params.fabuTimeStart}) ]]>
+            </if>
+            <if test=" params.fabuTimeEnd != '' and params.fabuTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhegncewenjian.fabu_time) <= UNIX_TIMESTAMP(#{params.fabuTimeEnd}) ]]>
+            </if>
+            <if test=" params.zhixingTimeStart != '' and params.zhixingTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhegncewenjian.zhixing_time) >= UNIX_TIMESTAMP(#{params.zhixingTimeStart}) ]]>
+            </if>
+            <if test=" params.zhixingTimeEnd != '' and params.zhixingTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(zhegncewenjian.zhixing_time) <= UNIX_TIMESTAMP(#{params.zhixingTimeEnd}) ]]>
+            </if>
+        </where>
+
+        order by a.${params.orderBy} desc 
+    </select>
+
+</mapper>
